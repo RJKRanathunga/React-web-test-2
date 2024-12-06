@@ -11,16 +11,17 @@ export default function Home() {
   const [completedBreaks, setCompletedBreaks] = useState(0); // Track completed Breaks
 
   useEffect(() => {
-    let interval;
+    let interval: NodeJS.Timeout | undefined;
+
     if (isActive) {
       interval = setInterval(() => {
         if (seconds === 0) {
           if (minutes === 0) {
             // Toggle between work and break
             if (isBreak) {
-              setCompletedPomodoros(prev => prev + 1); // Increment Pomodoro counter
+              setCompletedPomodoros((prev) => prev + 1); // Increment Pomodoro counter
             } else {
-              setCompletedBreaks(prev => prev + 1); // Increment Break counter
+              setCompletedBreaks((prev) => prev + 1); // Increment Break counter
             }
             setIsBreak(!isBreak);
             setMinutes(isBreak ? 25 : 5); // 25 minutes for work, 5 for break
@@ -34,10 +35,12 @@ export default function Home() {
         }
       }, 1000);
     } else {
-      clearInterval(interval); // Stop the timer when not active
+      if (interval) clearInterval(interval); // Stop the timer when not active
     }
 
-    return () => clearInterval(interval); // Cleanup on component unmount
+    return () => {
+      if (interval) clearInterval(interval); // Cleanup on component unmount
+    };
   }, [isActive, seconds, minutes, isBreak]);
 
   const startTimer = () => setIsActive(true);
@@ -48,7 +51,7 @@ export default function Home() {
     setSeconds(0);
   };
 
-  const formatTime = (time) => (time < 10 ? `0${time}` : time); // Format time for display
+  const formatTime = (time: number) => (time < 10 ? `0${time}` : time); // Format time for display
 
   return (
     <div className="container">
